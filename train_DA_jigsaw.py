@@ -34,9 +34,9 @@ def get_args():
     parser.add_argument("--n_classes", "-c", type=int, default=31, help="Number of classes")
     parser.add_argument("--jigsaw_n_classes", "-jc", type=int, default=31, help="Number of classes for the jigsaw task")
     parser.add_argument("--network", choices=model_factory.nets_map.keys(), help="Which network to use", default="caffenet")
-    parser.add_argument("--jig_weight", type=float, default=0.1, help="Weight for the jigsaw puzzle")
-    parser.add_argument("--target_weight", type=float, default=0, help="Weight for target jigsaw task")
-    parser.add_argument("--entropy_weight", type=float, default=0, help="Weight for target entropy")
+    parser.add_argument("--jig_weight", type=float, default=0.1, help="Weight for the jigsaw puzzle")#源域jigsaw权重 0.1为对照实验
+    parser.add_argument("--target_weight", type=float, default=0, help="Weight for target jigsaw task") #目标域jigsaw权重
+    parser.add_argument("--entropy_weight", type=float, default=0, help="Weight for target entropy") #目标域交叉熵损失权重
     
     parser.add_argument("--tf_logger", type=bool, default=True, help="If true will save tensorboard compatible logs")
     parser.add_argument("--val_size", type=float, default="0.1", help="Validation size (between 0 and 1)")
@@ -97,7 +97,7 @@ class Trainer:
             jigsaw_loss = criterion(jigsaw_logit, jig_l)
             target_jigsaw_logit, target_class_logit = self.model(tdata)
             target_jigsaw_loss = criterion(target_jigsaw_logit, tjig_l)
-            target_entropy_loss = entropy_loss(target_class_logit[tjig_l==0])
+            target_entropy_loss = entropy_loss(target_class_logit[tjig_l==0]) #TODO 这是啥？
             if self.only_non_scrambled:
                 class_loss = criterion(class_logit[jig_l == 0], class_l[jig_l == 0])
             else:

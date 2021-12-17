@@ -51,8 +51,8 @@ class JigsawDataset(data.Dataset):
         self.labels = labels
 
         self.N = len(self.names)
-        self.permutations = self.__retrieve_permutations(jig_classes)
-        self.grid_size = 3
+        self.permutations = self.__retrieve_permutations(jig_classes) #得到jig_classes个拼图的方式
+        self.grid_size = 3  #3*3网格
         self.bias_whole_image = bias_whole_image
         if patches:
             self.patch_size = 64
@@ -90,16 +90,16 @@ class JigsawDataset(data.Dataset):
         for n in range(n_grids):
             tiles[n] = self.get_tile(img, n)
 
-        order = np.random.randint(len(self.permutations) + 1)  # added 1 for class 0: unsorted
-        if self.bias_whole_image:
+        order = np.random.randint(len(self.permutations) + 1)  # added 1 for class 0: unsorted 范围：[0,30]， 0代表不要这个损失
+        if self.bias_whole_image: #以概率的方式来实现
             if self.bias_whole_image > random():
                 order = 0
-        if order == 0:
+        if order == 0: #不考虑这个损失
             data = tiles
-        else:
+        else: #选取一个拼图
             data = [tiles[self.permutations[order - 1][t]] for t in range(n_grids)]
             
-        data = torch.stack(data, 0)
+        data = torch.stack(data, 0) #维多压缩(9,3,grid_size,grid_size)
         return self.returnFunc(data), int(order), int(self.labels[index])
 
     def __len__(self):

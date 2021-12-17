@@ -53,6 +53,15 @@ class Subset(torch.utils.data.Dataset):
 
 
 def get_train_dataloader(args, patches):
+    '''
+
+    Args:
+        args:
+        patches:
+
+    Returns:
+        构建jigsaw图像
+    '''
     dataset_list = args.source
     # print("source:{}".format(args.source))
     # input()
@@ -107,15 +116,16 @@ def get_jigsaw_val_dataloader(args, patches=False):
 
 
 def get_train_transformers(args):
-    # img_tr = [transforms.RandomResizedCrop((int(args.image_size), int(args.image_size)), (args.min_scale, args.max_scale))]
-    img_tr = [transforms.RandomResizedCrop(int(args.image_size), (args.min_scale, args.max_scale))]
-    if args.random_horiz_flip > 0.0:
+
+    img_tr = [transforms.RandomResizedCrop(int(args.image_size), (args.min_scale, args.max_scale))] #数据增强：随机resize然后裁剪
+    if args.random_horiz_flip > 0.0: #是否水平翻转
         img_tr.append(transforms.RandomHorizontalFlip(args.random_horiz_flip))
-    if args.jitter > 0.0:
+    if args.jitter > 0.0: #颜色抖动
         img_tr.append(transforms.ColorJitter(brightness=args.jitter, contrast=args.jitter, saturation=args.jitter, hue=min(0.5, args.jitter)))
 
+    #tile_tr:拼图的一些变换：是否转换为灰度图，转tensor，归一化：加快收敛
     tile_tr = []
-    if args.tile_random_grayscale:
+    if args.tile_random_grayscale: # 转变为灰度图
         tile_tr.append(transforms.RandomGrayscale(args.tile_random_grayscale))
     tile_tr = tile_tr + [transforms.ToTensor(), transforms.Normalize([0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])]
 

@@ -37,7 +37,7 @@ def get_args():
     parser.add_argument("--jig_weight", type=float, default=0.1, help="Weight for the jigsaw puzzle")
     parser.add_argument("--ooo_weight", type=float, default=0, help="Weight for odd one out task")
     parser.add_argument("--tf_logger", type=bool, default=True, help="If true will save tensorboard compatible logs")
-    parser.add_argument("--val_size", type=float, default="0.1", help="Validation size (between 0 and 1)")
+    parser.add_argument("--val_size", type=float, default="0.1", help="Validation size (between 0 and 1)") #将训练集的10%作为验证集 90为训练集
     parser.add_argument("--folder_name", default=None, help="Used by the logger to save logs")
     parser.add_argument("--bias_whole_image", default=None, type=float, help="If set, will bias the training procedure to show more often the whole image")
     parser.add_argument("--classify_only_sane", type=bool, default=False, help="If true, the network will only try to classify the non scrambled images")
@@ -57,6 +57,9 @@ class Trainer:
     def __init__(self, args, device):
         self.args = args
         self.device = device
+        '''
+        设置backbone 模型
+        '''
         model = model_factory.get_network(args.network)(jigsaw_classes=args.jigsaw_n_classes + 1, classes=args.n_classes)
         self.model = model.to(device)
         # print(self.model)
@@ -69,7 +72,7 @@ class Trainer:
         self.jig_weight = args.jig_weight
         self.only_non_scrambled = args.classify_only_sane
         self.n_classes = args.n_classes
-        if args.target in args.source:
+        if args.target in args.source:  #如果目标域在源域里
             self.target_id = args.source.index(args.target)
             print("Target in source: %d" % self.target_id)
             print(args.source)
@@ -117,7 +120,7 @@ class Trainer:
                             {"jigsaw": jigsaw_loss.item(), "class": class_loss.item()  # , "domain": domain_loss.item()
                              },
                             # ,"lambda": lambda_val},
-                            {"jigsaw": torch.sum(jig_pred == jig_l.data).item(),
+                            {"jigsaw": torch.sum(jig_pred == jig_l.data).item(),  #不是百分比，是数目
                              "class": torch.sum(cls_pred == class_l.data).item(),
                              # "domain": torch.sum(domain_pred == d_idx.data).item()
                              },
@@ -139,6 +142,14 @@ class Trainer:
                 self.results[phase][self.current_epoch] = class_acc
 
     def do_test(self, loader):
+        '''
+
+        Args:
+            loader:数据集loader
+
+        Returns:
+            jigsaw和classify的结果
+        '''
         jigsaw_correct = 0
         class_correct = 0
         domain_correct = 0
