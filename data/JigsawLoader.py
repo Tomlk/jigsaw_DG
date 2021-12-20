@@ -94,7 +94,7 @@ class JigsawDataset(data.Dataset):
         if self.bias_whole_image: #以概率的方式来实现
             if self.bias_whole_image > random():
                 order = 0
-        if order == 0: #不考虑这个损失
+        if order == 0: #不考虑这个损失，即原图
             data = tiles
         else: #选取一个拼图
             data = [tiles[self.permutations[order - 1][t]] for t in range(n_grids)]

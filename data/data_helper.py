@@ -80,7 +80,7 @@ def get_train_dataloader(args, patches):
         val_datasets.append(
             JigsawTestDataset(name_val, labels_val, img_transformer=get_val_transformer(args),
                               patches=patches, jig_classes=args.jigsaw_n_classes))
-    dataset = ConcatDataset(datasets)
+    dataset = ConcatDataset(datasets) #拼接数据
     val_dataset = ConcatDataset(val_datasets)
     loader = torch.utils.data.DataLoader(dataset, batch_size=args.batch_size, shuffle=True, num_workers=4, pin_memory=True, drop_last=True)
     val_loader = torch.utils.data.DataLoader(val_dataset, batch_size=args.batch_size, shuffle=False, num_workers=4, pin_memory=True, drop_last=False)

@@ -120,7 +120,7 @@ class Trainer:
                             {"jigsaw": jigsaw_loss.item(), "class": class_loss.item()  # , "domain": domain_loss.item()
                              },
                             # ,"lambda": lambda_val},
-                            {"jigsaw": torch.sum(jig_pred == jig_l.data).item(),  #不是百分比，是数目
+                            {"jigsaw": torch.sum(jig_pred == jig_l.data).item(),
                              "class": torch.sum(cls_pred == class_l.data).item(),
                              # "domain": torch.sum(domain_pred == d_idx.data).item()
                              },
@@ -142,14 +142,6 @@ class Trainer:
                 self.results[phase][self.current_epoch] = class_acc
 
     def do_test(self, loader):
-        '''
-
-        Args:
-            loader:数据集loader
-
-        Returns:
-            jigsaw和classify的结果
-        '''
         jigsaw_correct = 0
         class_correct = 0
         domain_correct = 0
